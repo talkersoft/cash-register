@@ -1,5 +1,7 @@
 ﻿using System;
+using Microsoft.Extensions.Configuration;
 using cashregister.Models;
+using System.IO;
 
 namespace cashregister
 {
@@ -10,9 +12,14 @@ namespace cashregister
 
         static void Main(string[] args)
         {
-            //GetDispensorTotals();
-            PrintChange(controller.DispenseChange(7.99m, 20.00m));
 
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            var config = builder.Build();
+            var section = config["divisor"];
+            PrintChange(controller.DispenseChange(7.99m, 20.00m));
             PrintChange(controller.DispenseChange(7.00m, 10.00m));
         }
 

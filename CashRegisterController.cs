@@ -2,6 +2,7 @@
 using cashregister.Machine.Dispenser;
 using cashregister.Machine.Chamber;
 using cashregister.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace cashregister
 {
@@ -47,6 +48,11 @@ namespace cashregister
             );
         }
 
+        private bool MinimumChangeAvailable()
+        {
+            return pennyChamber.Units >= 5 && nickleChamber.Units >= 1 && dimeChamber.Units >= 2 && quarterChamber.Units >= 3 && dollarChamber.Units >= 19;
+        }
+
         public ChangeDue DispenseChange(decimal transactionTotal, decimal amountTendered)
         {
             var changeTray = new ChangeDue();
@@ -57,11 +63,10 @@ namespace cashregister
 
             changeTray.AmountDue = amountTendered - transactionTotal;
 
-            if (Dispenser.GetTotalValue() < changeTray.AmountDue)
+            if (Dispenser.GetTotalValue() < changeTray.AmountDue && MinimumChangeAvailable())
             {
                 throw new Exception("Amount Due is greater than amount dispensable, please fill the dispenser");
             }
-
 
             if (changeTray.AmountDue % 3 == 0)
             {
