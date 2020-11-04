@@ -35,18 +35,37 @@ namespace cashregister
                 .BuildServiceProvider();
 
             var controller = services.GetService<CashRegisterController>();
-            PrintChange(controller.DispenseChange(7.99m, 20.00m));
-            PrintChange(controller.DispenseChange(7.00m, 10.00m));
+
+            var lines = System.IO.File.ReadAllLines("transaction-input.csv");
+            foreach (string line in lines)
+            {
+                try
+                {
+                    var values = line.Split(",");
+                    decimal amountOwed = decimal.Parse(values[0]);
+                    decimal amountPaid = decimal.Parse(values[1]);
+                    PrintChange(controller.DispenseChange(amountOwed, amountPaid));
+                }
+                catch (Exception ex)
+                {
+                    using (StreamWriter file = new StreamWriter(@"transaction-output.csv", true))
+                    {
+                        var output = ex.Message;
+                        Console.WriteLine(output);
+                        file.WriteLine(output);
+                    }
+                }
+            }
         }
 
         private static void PrintChange(ChangeDue changeTray)
         {
-            Console.WriteLine($"Cash Register Totals");
-            Console.WriteLine($"Dollars: {changeTray.Dollars}");
-            Console.WriteLine($"Quarters: {changeTray.Quarters}");
-            Console.WriteLine($"Dimes: {changeTray.Dimes}");
-            Console.WriteLine($"Nickles: {changeTray.Nickles}");
-            Console.WriteLine($"Pennies: {changeTray.Pennies}");
+            using (StreamWriter file = new StreamWriter(@"transaction-output.csv", true))
+            {
+                var output = $"{changeTray.Dollars} dollar, {changeTray.Quarters} quarters, {changeTray.Dimes} dimes, {changeTray.Nickles} nickles, {changeTray.Pennies} pennies";
+                Console.WriteLine(output);
+                file.WriteLine(output);
+            }
         }
     }
 }

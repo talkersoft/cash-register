@@ -4,6 +4,6 @@ namespace cashregister.Models
 {
     public class AppSettings
     {
-        public int Divisor { get; set; }
+        public decimal Divisor { get; set; }
     }
 }

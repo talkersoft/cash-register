@@ -28,27 +28,27 @@ namespace cashregister
             return dispenser.Pennies.Units >= 5 && dispenser.Nickles.Units >= 1 && dispenser.Dimes.Units >= 2 && dispenser.Quarters.Units >= 3 && dispenser.Dollars.Units >= 19;
         }
 
-        public ChangeDue DispenseChange(decimal transactionTotal, decimal amountTendered)
+        public ChangeDue DispenseChange(decimal amountOwed, decimal amountTendered)
         {
             var changeTray = new ChangeDue();
-            if (amountTendered < transactionTotal)
+            if (amountTendered < amountOwed)
             {
                 throw new Exception("Amount Tendered must be greater than Transaction Total");
             }
 
-            changeTray.AmountDue = amountTendered - transactionTotal;
+            changeTray.AmountDue = amountTendered - amountOwed;
 
             if (dispenser.GetTotalValue() < changeTray.AmountDue && MinimumChangeAvailable())
             {
                 throw new Exception("Amount Due is greater than amount dispensable, please fill the dispenser");
             }
 
-            if (changeTray.AmountDue % appSettings.Divisor == 0)
+            if (amountOwed % appSettings.Divisor == 0)
             {
-                return randomDispenser.DispenseChange(transactionTotal, amountTendered);
+                return randomDispenser.DispenseChange(amountOwed, amountTendered);
             }
          
-            return dispenser.DispenseChange(transactionTotal, amountTendered);
+            return dispenser.DispenseChange(amountOwed, amountTendered);
         }
     }
 }
