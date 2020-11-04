@@ -60,7 +60,7 @@ namespace cashregister.Machine.Chamber
 
         public void DispenseChangeRandom(ChangeDue changeTray)
         {
-            var unitsToDispense = Convert.ToInt32(changeTray.AmountDue / Coin.Value);
+            var unitsToDispense = Convert.ToInt32(Math.Floor(changeTray.AmountDue / Coin.Value));
             if (unitsToDispense > this.Units)
             {
                 unitsToDispense = this.Units;
@@ -74,7 +74,7 @@ namespace cashregister.Machine.Chamber
 
         public void DispenseChange(ChangeDue changeTray)
         {
-            var unitsToDispense = Convert.ToInt32(changeTray.AmountDue / Coin.Value);
+            var unitsToDispense = Convert.ToInt32(Math.Floor(changeTray.AmountDue / Coin.Value));
             if (unitsToDispense > this.Units)
             {
                 unitsToDispense = this.Units;
