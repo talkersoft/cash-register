@@ -8,49 +8,24 @@ namespace cashregister
 {
     public class CashRegisterController
     {
-        public USDDispenser Dispenser { get; set; }
+        private USDDispenser dispenser { get; set; }
 
-        public USDRandomDispenser RandomDispenser { get; set; }
+        private USDRandomDispenser randomDispenser { get; set; }
 
-        private CoinChamber<Penny> pennyChamber;
+        private AppSettings appSettings;
 
-        private CoinChamber<Nickle> nickleChamber;
-
-        private CoinChamber<Dime> dimeChamber;
-
-        private CoinChamber<Quarter> quarterChamber;
-
-        private CoinChamber<Dollar> dollarChamber;
-
-
-        public CashRegisterController()
+        public CashRegisterController(AppSettings appSettings,
+                                      USDDispenser usdDispenser,
+                                      USDRandomDispenser usdRandomDispenser)
         {
-            pennyChamber = new CoinChamber<Penny>(100);
-            nickleChamber = new CoinChamber<Nickle>(100);
-            dimeChamber = new CoinChamber<Dime>(100);
-            quarterChamber = new CoinChamber<Quarter>(100);
-            dollarChamber = new CoinChamber<Dollar>(100);
-
-            this.Dispenser = new USDDispenser(
-                  pennyChamber,
-                  nickleChamber,
-                  dimeChamber,
-                  quarterChamber,
-                  dollarChamber
-              );
-
-            this.RandomDispenser = new USDRandomDispenser(
-                 pennyChamber,
-                 nickleChamber,
-                 dimeChamber,
-                 quarterChamber,
-                 dollarChamber
-            );
+            this.dispenser = usdDispenser;
+            this.randomDispenser = usdRandomDispenser;
+            this.appSettings = appSettings;
         }
 
         private bool MinimumChangeAvailable()
         {
-            return pennyChamber.Units >= 5 && nickleChamber.Units >= 1 && dimeChamber.Units >= 2 && quarterChamber.Units >= 3 && dollarChamber.Units >= 19;
+            return dispenser.Pennies.Units >= 5 && dispenser.Nickles.Units >= 1 && dispenser.Dimes.Units >= 2 && dispenser.Quarters.Units >= 3 && dispenser.Dollars.Units >= 19;
         }
 
         public ChangeDue DispenseChange(decimal transactionTotal, decimal amountTendered)
@@ -63,17 +38,17 @@ namespace cashregister
 
             changeTray.AmountDue = amountTendered - transactionTotal;
 
-            if (Dispenser.GetTotalValue() < changeTray.AmountDue && MinimumChangeAvailable())
+            if (dispenser.GetTotalValue() < changeTray.AmountDue && MinimumChangeAvailable())
             {
                 throw new Exception("Amount Due is greater than amount dispensable, please fill the dispenser");
             }
 
-            if (changeTray.AmountDue % 3 == 0)
+            if (changeTray.AmountDue % appSettings.Divisor == 0)
             {
-                return RandomDispenser.DispenseChange(transactionTotal, amountTendered);
+                return randomDispenser.DispenseChange(transactionTotal, amountTendered);
             }
          
-            return Dispenser.DispenseChange(transactionTotal, amountTendered);
+            return dispenser.DispenseChange(transactionTotal, amountTendered);
         }
     }
 }
